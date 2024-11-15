@@ -19,7 +19,7 @@ int main(int argc, char* argv[]) {
     if (argc == 1) { Help(); return 0; }
 
     // Handling arguments
-    int opt = 0; int Key_Letter = 0; int Letter = 0;
+    int opt = 0;
     bool Encrypt;
     char* String; char* Key; // This sounds stupid and might cause problems later on
     while ((opt = getopt(argc, argv, "hk:ed:")) != -1) {
@@ -56,8 +56,11 @@ int main(int argc, char* argv[]) {
 
     int String_Length = strlen(String);
     int Key_Length = strlen(Key);
-    char* Final;
+    
+    int Letter = 0; int Key_Letter = 0;
     int Current_Length = 0;
+
+    char Final[String_Length];
 
     goto Process;
 
@@ -82,13 +85,12 @@ int main(int argc, char* argv[]) {
                     }
                 }
                 // If the length of this shit isn't what we expect then a character was skipped so we add it back
-                /* this is fucked, will check later
-                Current_Length = strlen(Final);
+                Current_Length = strlen(Final); // This is fucked
                 if (Current_Length != cycle) {
+                    printf("Character '%c' has been added without modifying it. Current Length: '%d', Current Cycle: '%d'.\n", String[cycle], Current_Length, cycle);
                     Final[cycle] = String[cycle];
                 }
                 // printf("%c\n", Final[cycle]);
-                */
             } else {
                 printf("NULL found, stopping! \n");
                 goto Output;
