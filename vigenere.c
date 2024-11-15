@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <unistd.h>
 #include <stdbool.h>
+#include <string.h>
 
 const char Alphabet[27] = {"abcdefghijklmnopqrstuvwxyz\0"};
 
@@ -18,7 +19,7 @@ int main(int argc, char* argv[]) {
     if (argc == 1) { Help(); return 0; }
 
     // Handling arguments
-    int opt; int Key_Letter; int Letter;
+    int opt = 0; int Key_Letter = 0; int Letter = 0;
     bool Encrypt;
     char* String; char* Key; // This sounds stupid and might cause problems later on
     while ((opt = getopt(argc, argv, "hk:ed:")) != -1) {
@@ -53,10 +54,10 @@ int main(int argc, char* argv[]) {
 
     printf("Processing '%s' with key '%s'...\n", String, Key);
 
-    int String_Length = sizeof(String) / sizeof(String[0]);
-    int Key_Length = sizeof(Key) / sizeof(Key[0]);
-    char Final[String_Length];
-    int Current_Length;
+    int String_Length = strlen(String);
+    int Key_Length = strlen(Key);
+    char* Final;
+    int Current_Length = 0;
 
     goto Process;
 
@@ -64,34 +65,34 @@ int main(int argc, char* argv[]) {
     // not today
     Process:
         for (int cycle = 0; cycle < String_Length; cycle++) {
-            switch (String[cycle]) {
-                case '\0':
-                    printf("NULL found, stopping! \n");
-                    goto Output;
-                default:
-                    for (int subcycle = 0; subcycle < 26; subcycle++) {
-                        if (String[cycle] == Alphabet[subcycle]) {
-                            Letter = subcycle;
-                            // this looks retarded and I hate it.
-                            for (int minicycle = 0; minicycle < 26; minicycle++) {
-                                if (Key[cycle % Key_Length] == Alphabet[minicycle]) {
-                                    Key_Letter = minicycle;
-                                }
+            if (String[cycle] != '\0') {
+                for (int subcycle = 0; subcycle < 26; subcycle++) {
+                    if (String[cycle] == Alphabet[subcycle]) {
+                        Letter = subcycle;
+                        // this looks retarded and I hate it.
+                        for (int minicycle = 0; minicycle < 26; minicycle++) {
+                            if (Key[cycle % Key_Length] == Alphabet[minicycle]) {
+                                Key_Letter = minicycle;
                             }
-                            Letter = ((cycle + Key_Letter) % 26);
-                            printf("Shifting letter %c (position %d) to letter %c (position %d)... \n", String[cycle], subcycle, Alphabet[Letter], Letter);
-                            Final[cycle] = Alphabet[Letter];
-                            break;
                         }
+                        Letter = ((cycle + Key_Letter) % 26);
+                        printf("Shifting letter %c (position %d) to letter %c (position %d)... \n", String[cycle], subcycle, Alphabet[Letter], Letter);
+                        Final[cycle] = Alphabet[Letter];
+                        break;
                     }
-                    // If the length of this shit isn't what we expect then a character was skipped so we add it back
-                    Current_Length = sizeof(Final) / sizeof(Final[0]);
-                    if (Current_Length != cycle) {
-                        Final[cycle] = String[cycle];
-                    }
-                    // printf("%c\n", Final[cycle]);
-                    break;
                 }
+                // If the length of this shit isn't what we expect then a character was skipped so we add it back
+                /* this is fucked, will check later
+                Current_Length = strlen(Final);
+                if (Current_Length != cycle) {
+                    Final[cycle] = String[cycle];
+                }
+                // printf("%c\n", Final[cycle]);
+                */
+            } else {
+                printf("NULL found, stopping! \n");
+                goto Output;
+            }
         }
 
     Output:
